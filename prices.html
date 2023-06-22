@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>prices</title>
+	<!-- Load d3.js -->
+	<script src="https://d3js.org/d3.v7.js"></script>
+</head>
+<body>
+
+
+	<!-- Create a div where the graph will take place -->
+	<div id="my_dataviz"></div>
+	<div id="my_dataviz2"></div>
+
+	<script type="text/javascript">
+	const data = [{"name":"1-ocean","sku":"","color":"ocean-depths-eco-silk-pants","price":48,"vipPrice":0,"salePrice":28.8},{"name":"2-ocean","sku":"","color":"ocean-depths-eco-silk-shorts","price":42,"vipPrice":0,"salePrice":25.2},{"name":"3-spotted","sku":"","color":"spotted-panther-eco-silk-tank-top","price":48,"vipPrice":0,"salePrice":28.8},{"name":"4-spotted","sku":"","color":"spotted-panther-eco-silk-shorts","price":42,"vipPrice":0,"salePrice":25.2},{"name":"5-spotted","sku":"","color":"spotted-panther-eco-silk-slip-dress","price":85,"vipPrice":0,"salePrice":51},{"name":"6-brush","sku":"","color":"brush-eco-silk-pants","price":48,"vipPrice":0,"salePrice":28.8},{"name":"7-brush","sku":"","color":"brush-washable-eco-silk-slip-dress","price":75,"vipPrice":0,"salePrice":45},{"name":"8-cactus","sku":"","color":"cactus-eco-silk-shorts","price":42,"vipPrice":0,"salePrice":25.2},{"name":"9-cactus","sku":"","color":"cactus-eco-silk-slip-dress","price":75,"vipPrice":0,"salePrice":45},{"name":"10-cactus","sku":"","color":"cactus-eco-silk-tank-top","price":48,"vipPrice":0,"salePrice":28.8},{"name":"11-castle","sku":"","color":"castle-wall-eco-silk-tank-top","price":48,"vipPrice":0,"salePrice":28.8}]
+
+
+
+
+
+
+	const dataOut = []
+
+	// set the dimensions and margins of the graph
+	var margin = {top: 10, right: 30, bottom: 30, left: 60},
+	    width = 3000 - margin.left - margin.right,
+	    height = 1000 - margin.top - margin.bottom;
+
+	// append the svg object to the body of the page
+	const svg = d3.select("#my_dataviz")
+	    .append("svg")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", height + margin.top + margin.bottom)
+	    .append("g")
+	    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+	let xName = []
+	data.map( (d,i) => {
+		if(i == 0) xName.push('Names')
+		if(xName.indexOf(d.name) < 0 ){
+			xName.push(d.name)
+		}
+	})    
+	// Add X axis
+    const x = d3.scalePoint()
+    .domain(xName)
+    .range([ 10, width ]);
+
+    svg.append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .call(d3.axisBottom(x));
+
+    console.log(xName)
+
+    // Add Y axis
+    const y = d3.scaleLinear()
+    .domain([-10, 90])
+    .range([ height, -10]);
+    svg.append("g")
+    .call(d3.axisRight(y).tickSize(width + 10));
+
+
+
+	// create a tooltip
+	var Tooltip = d3.select("#my_dataviz")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "2px")
+        .style("border-radius", "5px")
+        .style("padding", "5px")
+        .style("z-index", "10")
+        .style("position", "absolute")
+  
+       // Three function that change the tooltip when user hover / move / leave a cell
+    var mouseover = function(d) {
+      Tooltip
+        .style("opacity", 1)
+      d3.select(this)
+        .style("stroke", "black")
+        .style("opacity", 1)
+    }
+    var mousemove = function(d) {
+      // console.log(d)
+      const pdpId = d.target.__data__.name
+      const color = d.target.__data__.color
+      const sku = d.target.__data__.sku
+      const priceT = d.target.__data__.price
+      Tooltip
+        .html(`Id: ${pdpId} <br>color: ${color} <br>sku: ${sku} <br>Price: ${priceT} `)
+        .style("left", (d.pageX + 40) + "px")
+        .style("top", d.pageY + "px")
+    }
+    var mousemove2 = function(d) {
+      // console.log(d)
+      const pdpId = d.target.__data__.name
+      const color = d.target.__data__.color
+      const sku = d.target.__data__.sku
+      const priceT = d.target.__data__.salePrice
+      Tooltip
+        .html(`Id: ${pdpId} <br>color: ${color} <br>sku: ${sku} <br>Price: ${priceT} `)
+        .style("left", (d.pageX + 40) + "px")
+        .style("top", d.pageY + "px")
+    }
+    var mouseleave = function(d) {
+      Tooltip
+        .style("opacity", 0)
+      d3.select(this)
+        .style("stroke", "none")
+        .style("opacity", 0.8)
+    }
+
+	    svg.append("g")
+	    .attr("transform", `translate(0, ${height})`)
+	    .call(d3.axisBottom(x));
+	    svg.append("g")
+	    .call(d3.axisLeft (y));
+
+	    // Add dots
+	    svg.append('g')
+	    .selectAll("dot")
+	    .data(data)
+	    .join("circle")
+	        .attr("cx", function (d) { return x(d.name); } )
+	        .attr("cy", function (d) { return y(d.price); } )
+	        .attr("r", 7)
+	        .style("fill", "black")
+	        .style('opacity', 0.5)
+		.on("mouseover", mouseover)
+		.on("mousemove", mousemove)
+		.on("mouseleave", mouseleave)
+
+		// Add dots
+	    // svg.append('g')
+	    // .selectAll("dot")
+	    // .data(dataOut)
+	    // .join("circle")
+	    //     .attr("cx", function (d) { return x(d.name) - 5; } )
+	    //     .attr("cy", function (d) { return y(d.price); } )
+	    //     .attr("r", 7)
+	    //     .style("fill", "gray")
+	    //     .style('opacity', 0.5)
+
+		 // Add dots
+    svg.append('g')
+    .selectAll("dot")
+    .data(data)
+    .join("circle")
+        .attr("cx", function (d) { return x(d.name) + 10; } )
+        .attr("cy", function (d) { return y(d.salePrice); } )
+        .attr("r", 7)
+        .style("fill", "red")
+        .style('opacity', 0.5)
+		.on("mouseover", mouseover)
+		.on("mousemove", mousemove2)
+		.on("mouseleave", mouseleave)
+
+    // Add dots
+    // svg.append('g')
+    // .selectAll("dot")
+    // .data(dataOut)
+    // .join("circle")
+    //     .attr("cx", function (d) { return x(d.name) - 10; } )
+    //     .attr("cy", function (d) { return y(d.salePrice); } )
+    //     .attr("r", 7)
+    //     .style("fill", "blue")
+    //     .style('opacity', 0.5)
+
+
+
+
+		function createSaleObjArr(){
+			const $grid = document.querySelectorAll('#filtered-prod-listing .item.epcWrapper');
+		
+			let allPdps = []
+			for(let i = 0; i < $grid.length; i++){
+
+				const priceObj = {
+					name: '',
+					sku: '',
+					color: '',
+					price: 0,
+					vipPrice: 0,
+					salePrice: 0,
+				}
+
+				const gotSale = $grid[i].classList.contains('this_sale');
+
+				const title = $grid[i].querySelectorAll('.col-pro-details h3 span')
+				
+				if(gotSale){
+					const $pricesSale = $grid[i].querySelector('.btnProductQuickAdd .prodTilePriceWrapper p.price')
+					// const $priceDis = $grid[i].querySelector('.btnProductQuickAdd .prodTilePriceWrapper div.holidayPriceWrapper.saleHighlight');
+					const $priceDis = $grid[i].querySelector('.btnProductQuickAdd .prodTilePriceWrapper div.holidayPriceWrapper.standard.saleHighlight.bfx-price');
+
+					priceObj['price'] = Number($pricesSale.textContent.split('$')[1])
+					priceObj['salePrice'] = Number($priceDis.textContent.split('$')[1])
+				
+				} else {
+					const $price = $grid[i].querySelector('.btnProductQuickAdd .prodTilePriceWrapper p.price')
+					const $vipPrice = $grid[i].querySelector('.btnProductQuickAdd .prodTilePriceWrapper .ebyProdTile-vipPriceWrapper p.bfx-price');
+
+					priceObj['price'] = Number($price.textContent.split('$')[1])
+					priceObj['vipPrice'] = Number($vipPrice.textContent.split('$')[1])
+				}
+				console.log($grid[i], gotSale, title[1].textContent)
+				priceObj['name'] = title[1].textContent
+				priceObj['color'] = title[2].textContent
+
+				allPdps.push(priceObj)
+			}
+
+			console.log(JSON.stringify(allPdps))	
+		}
+
+
+
+		function createPriceSub(){
+			const $grid = document.querySelectorAll('.epcWrapper.this_sale');
+			// const $grid = document.querySelectorAll('.epcWrapper');
+		
+			let allPdps = []
+			for(let i = 1; i < $grid.length; i++){
+
+				const priceObj = {
+					name: '',
+					sku: '',
+					color: '',
+					price: 0,
+					vipPrice: 0,
+					salePrice: 0,
+				}
+
+				const title = $grid[i].querySelector('button.btnProductQuickAdd').dataset.handle
+				// 
+				// const $price = $grid[i].querySelector('.eby-price-cy')
+				// const $vipPrice = $grid[i].querySelector('.eby-discount-cy');
+				const $price = $grid[i].querySelector('.noFiltermodeAddToCart .price.bfx-price')
+				// const $vipPrice = $grid[i].querySelector('.noFiltermodeAddToCart .holidayPriceWrapper.saleHighlight ');
+				// const $vipPrice = $grid[i].querySelector('.noFiltermodeAddToCart .ebyProdTile-vipPriceWrapper.bfx-remove-element .bfx-price');
+				const $vipPrice = $grid[i].querySelector('.noFiltermodeAddToCart .holidayPriceWrapper.standard.saleHighlight.bfx-price');
+
+				priceObj['price'] = Number($price.textContent.split('$')[1])
+				priceObj['salePrice'] = Number($vipPrice.textContent.split('$')[1])
+				
+				// console.log($grid[i], gotSale, title[1].textContent)
+				priceObj['name'] = i + '-' + title.split('-')[0]
+				priceObj['color'] = title
+
+				allPdps.push(priceObj)
+			}
+
+			console.log(JSON.stringify(allPdps));
+		}
+		
+	</script>
+</body>
+</html>
